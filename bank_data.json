@@ -1,0 +1,124 @@
+{
+    "accounts": {
+        "567985": {
+            "name": "Arslan Nasir",
+            "username": "arslan",
+            "password": "12345",
+            "pin": "1234",
+            "account_number": "567985",
+            "balance": 90.0,
+            "transaction_history": [
+                [
+                    "Account created",
+                    50.0
+                ],
+                [
+                    "Received from Danish M",
+                    20.0
+                ],
+                [
+                    "Received from danyal",
+                    10.0
+                ],
+                [
+                    "Received from Danish M",
+                    10.0
+                ]
+            ]
+        },
+        "668935": {
+            "name": "Danish M",
+            "username": "danish",
+            "password": "12345",
+            "pin": "1234",
+            "account_number": "668935",
+            "balance": 54.22499999999999,
+            "transaction_history": [
+                [
+                    "Account created",
+                    80.0
+                ],
+                [
+                    "Transfer to Arslan Nasir",
+                    -20.0
+                ],
+                [
+                    "Deposit",
+                    10.0
+                ],
+                [
+                    "Withdrawal",
+                    5.0
+                ],
+                [
+                    "Withdrawal Fee",
+                    0.075
+                ],
+                [
+                    "Transfer to Danish M",
+                    -10.0
+                ],
+                [
+                    "Received from Danish M",
+                    10.0
+                ],
+                [
+                    "Transfer Fee",
+                    0.35000000000000003
+                ],
+                [
+                    "Transfer to Arslan Nasir",
+                    -10.0
+                ],
+                [
+                    "Transfer Fee",
+                    0.35000000000000003
+                ]
+            ]
+        },
+        "502401": {
+            "name": "danyal",
+            "username": "danyal",
+            "password": "12345",
+            "pin": "1234",
+            "account_number": "502401",
+            "balance": 9.500000000000002,
+            "transaction_history": [
+                [
+                    "Account created",
+                    30.0
+                ],
+                [
+                    "Withdrawal",
+                    10.0
+                ],
+                [
+                    "Withdrawal Fee",
+                    0.15
+                ],
+                [
+                    "Transfer to Arslan Nasir",
+                    -10.0
+                ],
+                [
+                    "Transfer Fee",
+                    0.35000000000000003
+                ]
+            ]
+        }
+    },
+    "users": {
+        "arslan": [
+            "12345",
+            567985
+        ],
+        "danish": [
+            "12345",
+            668935
+        ],
+        "danyal": [
+            "12345",
+            502401
+        ]
+    }
+}
