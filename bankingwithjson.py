@@ -16,7 +16,7 @@ def save_data(data):
         json.dump(data, file, indent=4)
 
 class Account:
-    def __init__(self, name, username, password, pin, initial_balance=0, account_number=None, transaction_history=None):
+    def __init__(self, name, username, password, pin, initial_balance=0, account_number=None, transaction_history=None,  locked=False, login_attempts=0, pin_attempts=0):
         self.name = name
         self.username = username
         self.password = password
@@ -24,8 +24,18 @@ class Account:
         self.__account_number = account_number if account_number else random.randint(100000, 999999)
         self.__balance = initial_balance
         self.transaction_history = transaction_history if transaction_history else []
+        self.locked = locked
+        self.login_attempts = login_attempts
+        self.pin_attempts = pin_attempts
         if not transaction_history:
             self._log_transaction("Account created", initial_balance)
+
+    def is_locked(self):
+        return self.locked
+    
+    def reset_attempts(self):
+        self.login_attempts = 0
+        self.pin_attempts = 0
     
     def deposit(self, amount):
         if amount > 0:
@@ -52,8 +62,22 @@ class Account:
             print("Withdrawal amount must be positive.")
 
     def transfer(self, recipient, amount, pin):
+        # if pin != self.pin:
+        #     print("Incorrect PIN. Transfer denied.")
+        #     return
         if pin != self.pin:
-            print("Incorrect PIN. Transfer denied.")
+            self.pin_attempts += 1
+            if self.pin_attempts >= 3:
+                self.locked = True
+                print("Too many wrong PIN entries. Account has been locked.")
+            else:
+                print(f"Incorrect PIN,Transfer denied. {3 - self.pin_attempts} attempts left.")
+            return
+        else:
+            self.pin_attempts = 0
+        
+        if recipient == self:
+            print("You cannot transfer funds to your own account.")
             return
         
         if amount > 0 and amount <= self.__balance:
@@ -95,12 +119,16 @@ class Account:
             "pin": self.pin,
             "account_number": self.__account_number,
             "balance": self.__balance,
-            "transaction_history": self.transaction_history
+            "transaction_history": self.transaction_history,
+            "locked": self.locked,
+            "login_attempts": self.login_attempts,
+            "pin_attempts": self.pin_attempts
         }
 
 class Bank:
     def __init__(self):
         data = load_data()
+        self.admin_credentials = {"admin": "admin123"}
         self.accounts = {
             int(acc_num): Account(
                 name=acc_data["name"],
@@ -126,13 +154,73 @@ class Bank:
         print(f"Account created successfully! Account Number: {new_account.get_account_number()}")
         return new_account
     
+    # def login(self, username, password):
+    #     if username in self.users and self.users[username][0] == password:
+    #         account_number = self.users[username][1]
+    #         return self.accounts.get(account_number, None)
+    #     else:
+    #         print("Invalid username or password.")
+    #         return None
     def login(self, username, password):
-        if username in self.users and self.users[username][0] == password:
+        if username in self.users:
             account_number = self.users[username][1]
-            return self.accounts.get(account_number, None)
+            account = self.accounts.get(account_number)
+
+            if account.is_locked():
+                print("Account is locked. Contact admin to unlock.")
+                return None
+
+            if account.password == password:
+                account.reset_attempts()
+                self.save()
+                return account
+            else:
+                account.login_attempts += 1
+                if account.login_attempts >= 3:
+                    account.locked = True
+                    print("Too many failed login attempts. Account has been locked.")
+                else:
+                    print(f"Invalid password. {3 - account.login_attempts} attempts left.")
+                self.save()
+                return None
         else:
-            print("Invalid username or password.")
+            print("Username not found.")
             return None
+    
+    def admin_menu(self):
+        while True:
+            print("\n--- Admin Menu ---")
+            print("1. Unlock User Account")
+            print("2. View All Accounts")
+            print("3. Exit Admin Menu")
+            choice = input("Enter your choice: ")
+
+            if choice == "1":
+                acc_num = int(input("Enter account number to unlock: "))
+                account = self.get_account(acc_num)
+                if account and account.is_locked():
+                    account.locked = False
+                    account.reset_attempts()
+                    self.save()
+                    print("Account unlocked successfully.")
+                else:
+                    print("Account not found or not locked.")
+            elif choice == "2":
+                self.display_all_accounts()
+            elif choice == "3":
+                print("Exiting admin menu.")
+                break
+            else:
+                print("Invalid choice.")
+    def admin_login(self):
+        username = input("Enter admin username: ")
+        password = input("Enter admin password: ")
+        if self.admin_credentials.get(username) == password:
+            print("Admin logged in.")
+            self.admin_menu()
+        else:
+            print("Invalid admin credentials.")
+
 
     def get_account(self, account_number):
         return self.accounts.get(account_number, None)
@@ -141,8 +229,8 @@ class Bank:
         if not self.accounts:
             print("No accounts found.")
             return
-        account_list = [[acc.get_account_number(), acc.name, acc.username, acc.to_dict()["balance"]] for acc in self.accounts.values()]
-        print(tabulate(account_list, headers=["Account Number", "Name", "Username", "Balance"], tablefmt="grid"))
+        account_list = [[acc.get_account_number(), acc.name, acc.username, acc.to_dict()["balance"],"Locked" if acc.is_locked() else "Active"] for acc in self.accounts.values()]
+        print(tabulate(account_list, headers=["Account Number", "Name", "Username", "Balance", "Status"], tablefmt="grid"))
     
     def save(self):
         data = {
@@ -158,7 +246,8 @@ def main():
         print("1. Create Account")
         print("2. Login")
         print("3. Display All Accounts")
-        print("4. Exit")
+        print("4. Admin Login")
+        print("5. Exit")
         
         choice = input("Enter your choice: ")
         
@@ -214,6 +303,8 @@ def main():
         elif choice == "3":
             bank.display_all_accounts()
         elif choice == "4":
+            bank.admin_login()
+        elif choice == "5":
             print("Exiting... Goodbye!")
             break
         else:
