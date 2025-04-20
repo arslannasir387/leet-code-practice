@@ -24,7 +24,10 @@
                     "Received from Danish M",
                     10.0
                 ]
-            ]
+            ],
+            "locked": false,
+            "login_attempts": 1,
+            "pin_attempts": 0
         },
         "668935": {
             "name": "Danish M",
@@ -74,7 +77,10 @@
                     "Transfer Fee",
                     0.35000000000000003
                 ]
-            ]
+            ],
+            "locked": false,
+            "login_attempts": 0,
+            "pin_attempts": 0
         },
         "502401": {
             "name": "danyal",
@@ -104,7 +110,10 @@
                     "Transfer Fee",
                     0.35000000000000003
                 ]
-            ]
+            ],
+            "locked": false,
+            "login_attempts": 0,
+            "pin_attempts": 0
         }
     },
     "users": {
